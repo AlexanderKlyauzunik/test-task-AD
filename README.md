@@ -28,18 +28,21 @@ docker compose up -d
 
 # Verify services
 docker compose ps
+```
 
 ### 4. Pull necessary models
 
+```bash
 # Embedding model (768 dimensions, required for document indexing)
 docker exec ollama ollama pull nomic-embed-text
 
 # Generation model (required for chat responses)
 docker exec ollama ollama pull qwen3:0.6b
-
+```
 
 ### 5. Upload an example document (or any other pdf, docx, doc, md, txt)
 
+```bash
 curl -X POST \
   -F "document_file=example_docs/warcraft.pdf" \
   http://localhost:8000/api/upload-and-chunk
