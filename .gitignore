@@ -1,0 +1,29 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+.idea/
+bin/
+include/
+lib/
+lib64/
+share/
+pyvenv.cfg
+dataset_handler.py
+.idea/
+*.egg-info
+clear_docs/
+raw_docs/
+
+# Virtual environments
+.venv
+
+# Environment files
+.env
+lib64
+
+# Test files
+datasets/
+test/

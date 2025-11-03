@@ -1,0 +1,128 @@
+
+version: '3.9'
+
+services:
+  # -----------------------------------------------------------------
+  #  LLM Hosting via Ollama
+  # -----------------------------------------------------------------
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - rag_system_net
+    restart: unless-stopped
+
+  # -----------------------------------------------------------------
+  #  PostgreSQL Database with pgvector for Embeddings
+  # -----------------------------------------------------------------
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: postgres_db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - rag_system_net
+    restart: unless-stopped
+
+  # -----------------------------------------------------------------
+  #  Arize Phoenix for Observability & Tracing
+  # -----------------------------------------------------------------
+  phoenix:
+    image: arizephoenix/phoenix:latest
+    container_name: phoenix_observer
+    ports:
+      - "6006:6006"
+      - "4317:4317"  # gRPC OTLP
+      - "4318:4318"  # HTTP OTLP
+    volumes:
+      - phoenix_data:/phoenix
+    networks:
+      - rag_system_net
+    restart: unless-stopped
+
+  # -----------------------------------------------------------------
+  #  Custom Backend (Agentic RAG Core)
+  # -----------------------------------------------------------------
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: custom_backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./docs:/app/docs # Mount local documents for indexing
+      - ./app:/app/app # Mount app code for hot reload
+      - ./data:/app/data # Mount data directory (raw_docs, clear_docs, indexed data) 
+    environment:
+      - DATABASE_URL=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - OLLAMA_HOST=http://ollama:11434
+      - PHOENIX_HOST=http://phoenix:6006
+      - BACKEND_HOST=0.0.0.0
+      - BACKEND_PORT=8000
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - COLLECTOR_ENDPOINT=phoenix:4317
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://phoenix:4317
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_EXPORTER_OTLP_INSECURE=true
+      - PROD_CORS_ORIGIN=http://localhost:3000
+      - INSTRUMENT_LLAMA_INDEX=true
+    networks:
+      - rag_system_net
+    depends_on:
+      - postgres
+      - ollama
+      - phoenix
+    restart: unless-stopped
+
+  # -----------------------------------------------------------------
+  #  OpenWebUI Frontend
+  # -----------------------------------------------------------------
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:ollama
+    container_name: open_webui
+    ports:
+      - "3000:8080"
+    environment:
+      - OLLAMA_BASE_URL=http://backend:8000
+    volumes:
+      - open_webui_data:/app/backend/data
+    networks:
+      - rag_system_net
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+# -----------------------------------------------------------------
+#  Named Volumes for Data Persistence
+# -----------------------------------------------------------------
+volumes:
+  ollama_data:
+    driver: local
+  postgres_data:
+    driver: local
+  phoenix_data:
+    driver: local
+  open_webui_data:
+    driver: local
+  # ollama_models:
+  #   driver: local
+
+# -----------------------------------------------------------------
+#  Shared Network for Service Communication
+# -----------------------------------------------------------------
+networks:
+  rag_system_net:
+    driver: bridge

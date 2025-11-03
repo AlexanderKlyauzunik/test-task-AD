@@ -1,0 +1,91 @@
+[project]
+name = "ai-case-study"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "arize-phoenix>=4.29.0",
+    "arize-phoenix-evals>=2.0.0",
+    "arize-phoenix-client",
+    "openinference-instrumentation-crewai>=0.1.15",
+    "ragas>=0.3.8",
+    "docling>=2.57.0",
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "psycopg2-binary>=2.9.0",
+    "httpx>=0.25.0",
+    "llama-index-core>=0.12.3",
+    "llama-index-embeddings-ollama>=0.1.0",
+    "llama-index-llms-ollama>=0.4.2",
+    "llama-index-vector-stores-postgres>=0.4.0",
+    "crewai>=0.60.0,<0.80.0",
+    "python-multipart>=0.0.20",
+    "ruff>=0.14.2",
+    "aiocache>=0.12.3",
+]
+
+[tool.ruff]
+line-length = 170
+cache-dir = "~/.cache/ruff"
+exclude = [
+  "data/*",
+  "test/*",
+]
+
+[tool.ruff.format]
+docstring-code-format = true
+docstring-code-line-length = 88
+
+[tool.ruff.lint]
+select = [
+  "B006",    # multiple-argument-default
+  "B012",    # jump-statement-in-finally
+  "B015",    # useless-comparison
+  "D209",    # new-line-after-last-paragraph
+  "D411",    # no-blank-line-before-section
+  "DTZ003",  # call-datetime-utcnow
+  "E",       # error
+  "F",       # Pyflakes
+  "C4",      # flake8-comprehensions
+  "I",       # isort
+  "ISC001",  # single-line-implicit-string-concatenation
+  "N804",    # invalid-first-argument-name-for-class-method
+  "PIE790",  # unnecessary-placeholder
+  "PLR0402", # manual-from-import
+  "PLR1714", # repeated-equality-comparison
+  "PLE1205", # logging-too-many-args
+  "PLW0602", # global-variable-not-assigned
+  "PLW1508", # invalid-envvar-default
+  "PYI024",  # collections-named-tuple
+  "RET504",  # unnecessary-assign
+  "RUF002",  # ambiguous-unicode-character-docstring
+  "RUF003",  # ambiguous-unicode-character-comment
+  "RUF010",  # explicit-f-string-type-conversion
+  "RUF013",  # implicit-optional
+  "RUF051",  # if-key-in-dict-del
+  "RUF100",  # unused-noqa
+  "S307",    # suspicious-eval-usage
+  "S324",    # hashlib-insecure-hash-function
+  "SIM101",  # duplicate-isinstance-call
+  "SIM108",  # if-else-block-instead-of-if-exp
+  "SIM114",  # if-with-same-arms
+  "SIM115",  # open-file-with-context-handler
+  "SIM210",  # if-expr-with-true-false
+  "SIM910",  # dict-get-with-none-default
+  "TID251",  # banned-api
+  "TID252",  # relative-import
+  "TRY203",  # useless-try-except
+  "UP004",   # useless-object-inheritance
+  "UP006",   # non-pep585-annotation
+  "UP007",   # non-pep604-annotation-union
+  "UP008",   # super-call-with-parameters
+  "UP011",   # lru-cache-without-parameters
+  "UP012",   # unnecessary-encode-utf8
+  "UP015",   # redundant-open-modes
+  "UP030",   # format-literals
+  "UP031",   # printf-string-format
+  "UP034",   # extraneous-parenthesis
+  "UP045",   # non-pep604-annotation-optional
+  "W",       # warning
+]
