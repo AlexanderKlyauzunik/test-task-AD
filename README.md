@@ -29,11 +29,16 @@ docker compose up -d
 # Verify services
 docker compose ps
 
+### 4. Pull necessary models
+
 # Embedding model (768 dimensions, required for document indexing)
 docker exec ollama ollama pull nomic-embed-text
 
 # Generation model (required for chat responses)
 docker exec ollama ollama pull qwen3:0.6b
+
+
+### 5. Upload an example document (or any other pdf, docx, doc, md, txt)
 
 curl -X POST \
   -F "document_file=example_docs/warcraft.pdf" \
@@ -105,7 +110,7 @@ curl -X POST -F "document_file=@doc3.md" http://localhost:8000/api/upload-and-ch
 # Query vector database directly
 curl -X POST http://localhost:8000/api/rag \
   -H "Content-Type: application/json" \
-  -d '{"query": "What is the main topic?"}'
+  -d '{"query": "What is world of warcraft?"}'
 
 # Response includes:
 # - text: retrieved chunk text
@@ -124,14 +129,14 @@ Uses two CrewAI agents for enhanced quality:
 # Direct API call
 curl -X POST http://localhost:8000/api/chat \
   -H "Content-Type: application/json" \
-  -d '{"prompt": "Explain the main concepts", "model": "qwen3:0.6b"}'
+  -d '{"prompt": "Explain the guilds", "model": "qwen3:0.6b"}'
 
 # OpenWebUI format (with messages array)
 curl -X POST http://localhost:8000/api/chat \
   -H "Content-Type: application/json" \
   -d '{
     "model": "qwen3:0.6b",
-    "messages": [{"role": "user", "content": "What are the key points?"}]
+    "messages": [{"role": "user", "content": "Is night elf a good class?"}]
   }'
 ```
 
